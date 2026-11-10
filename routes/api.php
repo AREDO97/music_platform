@@ -1,12 +1,16 @@
 <?php
 
 use App\Http\Controllers\api\AuditLogController;
+use App\Http\Controllers\api\GenreController;
 use App\Http\Controllers\api\NotificationsController;
 use App\Http\Controllers\api\UserController;
 use App\Http\Controllers\auth\AuthController;
 use App\Http\Controllers\api\SettingsController;
 use App\Http\Controllers\api\HealthController;
 use App\Http\Controllers\api\ProfileController;
+use App\Http\Controllers\api\TrackController;
+use App\Http\Controllers\api\VideoController;
+use App\Http\Controllers\api\VideoCategoryController;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Route;
@@ -105,3 +109,55 @@ Route::prefix('v1')->middleware(['auth:sanctum','role:admin,super_admin','verifi
 });
 
 
+// get genres
+    Route::get('v1/genres',[GenreController::class,'index'])
+    ->middleware(['auth:sanctum']);
+// genre management
+Route::prefix('v1')->middleware(['auth:sanctum','role:admin,super_admin'])->group(function (){
+    // create genre
+    Route::post('genres',[GenreController::class,'create']);
+    // update genre
+    Route::patch('genres/{genre}',[GenreController::class,'update']);
+    // delete genre
+    Route::delete('genres/{genre}',[GenreController::class,'destroy']);
+});
+
+
+// track managent
+ Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
+    // get all tracks
+    Route::get('tracks',[TrackController::class,'index']);
+    // create track
+    Route::post('tracks',[TrackController::class,'create']);
+    // update track
+    Route::post('tracks/{track}',[TrackController::class,'update']);
+    // delete track
+    Route::delete('tracks/{track}',[TrackController::class,'destroy']);
+    });
+
+// video category management
+// get genres
+    Route::get('v1/video_categories',[GenreController::class,'index'])
+    ->middleware(['auth:sanctum']);
+// genre management
+Route::prefix('v1')->middleware(['auth:sanctum','role:admin,super_admin'])->group(function (){
+    // create genre
+    Route::post('video_categories',[VideoCategoryController::class,'create']);
+    // update genre
+    Route::patch('video_categories/{category}',[VideoCategoryController::class,'update']);
+    // delete genre
+    Route::delete('video_categories/{category}',[VideoCategoryController::class,'destroy']);
+});
+
+// video management
+// track managent
+ Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
+    // get all tracks
+    Route::get('videos',[VideoController::class,'index']);
+    // create track
+    Route::post('videos',[VideoController::class,'create']);
+    // update track
+    Route::post('videos/{video}',[VideoController::class,'update']);
+    // delete track
+    Route::delete('videos/{video}',[VideoController::class,'destroy']);
+    });
