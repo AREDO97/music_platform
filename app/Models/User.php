@@ -41,4 +41,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Track::class);
     }
+
+    // favorites
+    public function favorites()
+    {
+        return $this->hasMany(Favorite::class);
+    }
 }

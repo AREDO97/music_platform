@@ -51,4 +51,9 @@ class Track extends Model
 
         return sprintf('%d:%02d', $minutes, $seconds);
     }
+    // favorites
+    public function favorites()
+    {
+        return $this->hasMany(Favorite::class);
+    }
 }

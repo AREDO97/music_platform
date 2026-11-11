@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\api\AuditLogController;
+use App\Http\Controllers\api\FavoritesController;
 use App\Http\Controllers\api\GenreController;
 use App\Http\Controllers\api\NotificationsController;
 use App\Http\Controllers\api\UserController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\api\HealthController;
 use App\Http\Controllers\api\ProfileController;
 use App\Http\Controllers\api\TrackController;
 use App\Http\Controllers\api\VideoController;
+use App\Http\Controllers\api\WatchlistController;
 use App\Http\Controllers\api\VideoCategoryController;
 use Illuminate\Http\Request;
 
@@ -161,3 +163,24 @@ Route::prefix('v1')->middleware(['auth:sanctum','role:admin,super_admin'])->grou
     // delete track
     Route::delete('videos/{video}',[VideoController::class,'destroy']);
     });
+
+// favorite management
+ Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
+    // user favorites
+    Route::get('favorites',[FavoritesController::class,'index']);
+    // make favorite
+    Route::post('favorites/{track}',[FavoritesController::class,'create']);
+    // remove from favorites
+    Route::delete('favorites/{track}',[FavoritesController::class,'destroy']);
+ });
+
+
+ // Watchlist management
+Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
+    // Get user watchlist
+    Route::get('watchlist', [WatchlistController::class, 'index']);
+    // Add video to watchlist
+    Route::post('watchlist/{video}', [WatchlistController::class, 'create']);
+    // Remove video from watchlist
+    Route::delete('watchlist/{video}', [WatchlistController::class, 'destroy']);
+});
