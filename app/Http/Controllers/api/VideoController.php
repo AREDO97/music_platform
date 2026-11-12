@@ -3,16 +3,19 @@
 namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 use getID3;
 use App\Models\Video;
 use App\Models\VideoCategory;
+use App\Notifications\videoCreationNotification;
 
 class VideoController extends Controller
 {
     // Upload a new video
     public function create(Request $request)
     {
+        $user=$request->user();
         $request->validate([
             'title'             => 'required|string',
             'video'             => 'required|file|mimes:mp4,mov,avi,mkv,webm|max:102400', // max 100MB for video
@@ -44,6 +47,14 @@ class VideoController extends Controller
             'is_active'         => true,
         ]);
 
+        // notify admins
+    $users= User::whereIn('role',['admin','super_admin'])->get();
+    foreach($users as $admin)
+        {
+            $admin->notify(
+                new videoCreationNotification($user->name)
+            );
+        }
         return response()->json([
             'message' => 'Video uploaded successfully',
             'video'   => $video,

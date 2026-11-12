@@ -56,4 +56,9 @@ class Track extends Model
     {
         return $this->hasMany(Favorite::class);
     }
+    // ratings
+     public function ratings()
+    {
+        return $this->hasMany(AudioRating::class);
+    }
 }

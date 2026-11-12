@@ -47,4 +47,19 @@ class User extends Authenticatable
     {
         return $this->hasMany(Favorite::class);
     }
+    // profile
+    public function profile()
+{
+    return $this->hasOne(UserProfile::class);
+}
+    // ratings
+    public function ratings()
+    {
+        return $this->hasMany(AudioRating::class);
+    }
+    // videoratings
+    public function videoRatings()
+    {
+        return $this->hasMany(VideoRating::class);
+    }
 }

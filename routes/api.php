@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\api\AudioRateController;
 use App\Http\Controllers\api\AuditLogController;
 use App\Http\Controllers\api\FavoritesController;
 use App\Http\Controllers\api\GenreController;
@@ -13,6 +14,8 @@ use App\Http\Controllers\api\TrackController;
 use App\Http\Controllers\api\VideoController;
 use App\Http\Controllers\api\WatchlistController;
 use App\Http\Controllers\api\VideoCategoryController;
+use App\Http\Controllers\api\VideoRateController;
+use App\Http\Controllers\api\UserProfileController;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Route;
@@ -183,4 +186,32 @@ Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
     Route::post('watchlist/{video}', [WatchlistController::class, 'create']);
     // Remove video from watchlist
     Route::delete('watchlist/{video}', [WatchlistController::class, 'destroy']);
+});
+
+
+
+Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
+    // User Profile Management
+    Route::get('profile', [UserProfileController::class, 'show']);
+    Route::post('profile', [UserProfileController::class, 'store']);
+    Route::post('profile/update', [UserProfileController::class, 'update']); 
+    Route::delete('profile', [UserProfileController::class, 'destroy']);
+});
+
+// audio rating management
+Route::prefix('v1')->middleware(['auth:sanctum'])->group(function (){
+// create rating
+Route::post('audio_ratings/{track}',[AudioRateController::class,'create']);
+// show track rating
+Route::get('audio_ratings/{track}',[AudioRateController::class,'index']);
+
+});
+
+
+// Video rating management
+Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
+    // Rate a video
+    Route::post('video_ratings/{video}', [VideoRateController::class, 'create']);
+    // Show video ratings summary
+    Route::get('video_ratings/{video}', [VideoRateController::class, 'index']);
 });

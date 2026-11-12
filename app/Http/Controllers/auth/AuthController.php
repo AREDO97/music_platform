@@ -22,6 +22,7 @@ public function register(Request $request)
         'name'     => ['required', 'string', 'max:255'],
         'email'    => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
         'password' => ['required', 'min:6'], 
+        'phone'    => ['required', 'max:16'],
     ]);
 
     // Insert User into db
@@ -33,6 +34,11 @@ public function register(Request $request)
   
     // Issue Token 
     $token = $user->createToken('auth-token');
+    // create profile
+    $profile = UserProfile::create([
+        'user_id'=>$user->id,
+        'phone'  =>$request->phone,
+    ]);
     // log action $userId,$action,$body
   $logs = AuditLog::logAction(
         $request,
@@ -50,6 +56,7 @@ public function register(Request $request)
         'user'    => $user,
         'token'   => $token,
         'logs'    =>$logs,
+        'profile' =>$profile,
     ], 201);
 }
 
