@@ -6,12 +6,15 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
  use getID3;
 use App\Models\Track;
+use App\Models\User;
+use App\Notifications\trackCreationNotification;
 
 class TrackController extends Controller
 {
     // upload track
 public function create(Request $request)
 {
+    $user=$request->user();
     $request->validate([
         'title' => 'required|string',
         'audio' => 'required|file|mimes:mp3,wav,aac,m4a|max:20480', // max 20MB
@@ -44,6 +47,14 @@ public function create(Request $request)
         'is_active'        => true,
     ]);
 
+    // notify admins
+    $users= User::whereIn('role',['admin','super_admin'])->get();
+    foreach($users as $admin)
+        {
+            $admin->notify(
+                new trackCreationNotification($user->name)
+            );
+        }
     return response()->json([
         'message' => 'Track uploaded successfully',
         'track'   => $track,

@@ -49,5 +49,11 @@ public function category()
 
         return sprintf('%d:%02d', $minutes, $seconds);
     }
+
+     // videoratings
+    public function videoRatings()
+    {
+        return $this->hasMany(VideoRating::class);
+    }
 }
 
