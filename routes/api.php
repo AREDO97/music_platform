@@ -10,6 +10,7 @@ use App\Http\Controllers\auth\AuthController;
 use App\Http\Controllers\api\SettingsController;
 use App\Http\Controllers\api\HealthController;
 use App\Http\Controllers\api\ProfileController;
+use App\Http\Controllers\api\RecommendationController;
 use App\Http\Controllers\api\TrackController;
 use App\Http\Controllers\api\VideoController;
 use App\Http\Controllers\api\WatchlistController;
@@ -259,4 +260,18 @@ Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
     Route::post('track_plays/{track}', [TrackPlayController::class, 'create']);
     // Get plays for a specific track
     Route::get('track_plays/{track}', [TrackPlayController::class, 'index']);
+});
+
+// recommendation mgt
+Route::middleware('auth:sanctum')->group(function () {
+
+    Route::get(
+        '/v1/recommendations/genre',
+        [RecommendationController::class, 'favouriteGenres']
+    );
+    //forYou
+    Route::get(
+        '/v1/recommendations',
+        [RecommendationController::class, 'forYou']
+    );
 });
