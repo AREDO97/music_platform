@@ -68,7 +68,7 @@ return [
      */
     'servers' => [
         'Local (Development)' => 'http://127.0.0.1:8000/api',
-        'Production' => env('API_PRODUCTION_URL', 'https://your-domain.com/api'),
+        'Production' => 'https://music-platform-3whx.onrender.com/api',
     ],
 
     'enum_cases_description_strategy' => 'description',
