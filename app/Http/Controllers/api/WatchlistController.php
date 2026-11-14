@@ -7,7 +7,7 @@ use App\Models\WatchList;
 use App\Models\Video;
 use Illuminate\Http\Request;
 
-class WatchListController extends Controller
+class WatchlistController extends Controller
 {
     // Add video to watchlist
     public function create(Request $request, Video $video)
