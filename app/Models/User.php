@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
+use Dedoc\Scramble\Support\Type\FunctionType;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -62,4 +63,24 @@ class User extends Authenticatable
     {
         return $this->hasMany(VideoRating::class);
     }
+    // videoComments
+    public function videoComments()
+    {
+        return $this->hasMany(VideoComment::class);
+    }
+    // likes
+    public function likes()
+    {
+        return $this->hasMany(VideoLike::class);
+    }
+    // videoViews
+    public function videoViews()
+    {
+        return $this->hasMany(VideoView::class);
+    }
+    // track plays
+    public function trackPlays()
+{
+    return $this->hasMany(TrackPlay::class);
+}
 }
