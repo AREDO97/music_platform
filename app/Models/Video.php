@@ -55,5 +55,22 @@ public function category()
     {
         return $this->hasMany(VideoRating::class);
     }
+
+     // videoComments
+    public function videoComments()
+    {
+        return $this->hasMany(VideoComment::class);
+    }
+
+    // likes
+    public function likes()
+    {
+        return $this->hasMany(VideoLike::class);
+    }
+    // videoViews
+    public function videoViews()
+    {
+        return $this->hasMany(VideoView::class);
+    }
 }
 

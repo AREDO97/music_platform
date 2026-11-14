@@ -16,8 +16,11 @@ use App\Http\Controllers\api\WatchlistController;
 use App\Http\Controllers\api\VideoCategoryController;
 use App\Http\Controllers\api\VideoRateController;
 use App\Http\Controllers\api\UserProfileController;
+use App\Http\Controllers\api\VideoCommentsController;
+use App\Http\Controllers\api\VideoLikesController;
+use App\Http\Controllers\api\VideoViewController;
 use Illuminate\Http\Request;
-
+use App\Http\Controllers\api\TrackPlayController;
 use Illuminate\Support\Facades\Route;
 
 // register & login
@@ -214,4 +217,46 @@ Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
     Route::post('video_ratings/{video}', [VideoRateController::class, 'create']);
     // Show video ratings summary
     Route::get('video_ratings/{video}', [VideoRateController::class, 'index']);
+});
+
+// video comments
+Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
+// video comments
+Route::get('video_comments/{video}',[VideoCommentsController::class,'index']);
+// comment on a video
+Route::post('video_comments/{video}',[VideoCommentsController::class,'create']);
+// update comment
+Route::patch('video_comments/{comment}',[VideoCommentsController::class,'update']);
+// delete comment
+Route::delete('video_comments/{comment}',[VideoCommentsController::class,'destroy']);
+});
+
+// video likes management
+Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
+// like video
+Route::post('video_likes/{video}',[VideoLikesController::class,'create']);
+// get video likes
+Route::get('video_likes/{video}',[VideoLikesController::class,'index']);
+});
+
+// video views management
+Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
+// summary of views
+Route::get('video_views',[VideoViewController::class,'summary']);
+// create view
+Route::post('video_views/{video}',[VideoViewController::class,'create']);
+// get views
+Route::get('video_views/{video}',[VideoViewController::class,'index']);
+
+});
+
+
+// Track plays management
+Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
+    // Summary of plays (Admin)
+    Route::get('track_plays', [TrackPlayController::class, 'summary']);
+    // Record a play for a track
+    Route::post('track_plays/{track}', [TrackPlayController::class, 'create']);
+    // Get plays for a specific track
+    Route::get('track_plays/{track}', [TrackPlayController::class, 'index']);
 });

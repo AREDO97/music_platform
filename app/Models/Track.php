@@ -61,4 +61,9 @@ class Track extends Model
     {
         return $this->hasMany(AudioRating::class);
     }
+    // track plays
+    public function trackPlays()
+{
+    return $this->hasMany(TrackPlay::class);
+}
 }
