@@ -68,7 +68,7 @@ return [
      */
     'servers' => [
         'Local (Development)' => 'http://127.0.0.1:8000/api',
-        'Production' => 'https://music-platform-orcc.onrender.com',
+        'Production' => 'https://music-platform-orcc.onrender.com/api',
     ],
 
     'enum_cases_description_strategy' => 'description',
