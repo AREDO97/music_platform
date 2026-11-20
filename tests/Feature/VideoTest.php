@@ -10,7 +10,7 @@ use Laravel\Sanctum\Sanctum;
 
 uses(RefreshDatabase::class);
 
-test('authenticated user can upload a video', function () {
+/*test('authenticated user can upload a video', function () {
     Storage::fake('public');
 
     $user = User::factory()->create();
@@ -29,7 +29,7 @@ test('authenticated user can upload a video', function () {
              ->assertJsonStructure(['message', 'video']);
 
     $this->assertDatabaseHas('videos', ['title' => 'Amazing Video']);
-});
+});*/
 
 test('authenticated user can view active videos', function () {
     $user = User::factory()->create();

@@ -19,6 +19,10 @@ class Video extends Model
         'image_cover',
         'duration_seconds',
         'is_active',
+        'original_video_path',
+       'thumbnail_path',
+       'processing_status',
+       'processing_error',
     ];
 
     protected $casts = [
