@@ -1,0 +1,43 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+   public function up(): void
+{
+    Schema::table('videos', function (Blueprint $table) {
+        $table->string('original_video_path')->nullable();
+
+        $table->string('thumbnail_path')->nullable();
+
+        // Existing videos should remain available.
+        $table->string('processing_status')
+            ->default('ready');
+
+        $table->text('processing_error')->nullable();
+    });
+}
+
+public function down(): void
+{
+    Schema::table('videos', function (Blueprint $table) {
+        $table->dropColumn([
+            'original_video_path',
+            'thumbnail_path',
+            'processing_status',
+            'processing_error',
+        ]);
+    });
+}
+
+    /**
+     * Reverse the migrations.
+     */
+   
+};

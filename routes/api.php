@@ -12,6 +12,7 @@ use App\Http\Controllers\api\HealthController;
 use App\Http\Controllers\api\ProfileController;
 use App\Http\Controllers\api\RecommendationController;
 use App\Http\Controllers\api\TrackController;
+use App\Http\Controllers\api\TrackLikeController;
 use App\Http\Controllers\api\VideoController;
 use App\Http\Controllers\api\WatchlistController;
 use App\Http\Controllers\api\VideoCategoryController;
@@ -159,7 +160,6 @@ Route::prefix('v1')->middleware(['auth:sanctum','role:admin,super_admin'])->grou
 });
 
 // video management
-// track managent
  Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
     // get all tracks
     Route::get('videos',[VideoController::class,'index']);
@@ -170,6 +170,16 @@ Route::prefix('v1')->middleware(['auth:sanctum','role:admin,super_admin'])->grou
     // delete track
     Route::delete('videos/{video}',[VideoController::class,'destroy']);
     });
+
+
+// track likes
+Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
+  // create a like
+    Route::post('track_likes/{track}',[TrackLikeController::class,'create']);
+ // show likes
+    Route::get('track_likes/{track}',[TrackLikeController::class,'index']);
+
+});
 
 // favorite management
  Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
@@ -275,3 +285,6 @@ Route::middleware('auth:sanctum')->group(function () {
         [RecommendationController::class, 'forYou']
     );
 });
+
+
+

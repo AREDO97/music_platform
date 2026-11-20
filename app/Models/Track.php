@@ -66,4 +66,9 @@ class Track extends Model
 {
     return $this->hasMany(TrackPlay::class);
 }
+    // trackLikes
+    public function trackLikes()
+    {
+        return $this->hasMany(TrackLike::class);
+    }
 }

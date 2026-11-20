@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use getID3;
+use App\Jobs\ProcessVideo;
+use Illuminate\Support\Facades\Storage;
+use Throwable;
 use App\Models\Video;
 use App\Models\VideoCategory;
 use App\Notifications\videoCreationNotification;
@@ -13,53 +16,90 @@ use App\Notifications\videoCreationNotification;
 class VideoController extends Controller
 {
     // Upload a new video
-    public function create(Request $request)
-    {
-        $user=$request->user();
-        $request->validate([
-            'title'             => 'required|string',
-            'video'             => 'required|file|mimes:mp4,mov,avi,mkv,webm|max:102400', // max 100MB for video
-            'video_category_id' => 'required|exists:video_categories,id',
-            'image_cover'       => 'required|image',
-            'description'       => 'nullable|max:100',
-        ]);
+   public function create(Request $request)
+{
+    $user = $request->user();
 
-        // Store the uploaded video and cover files
-        $videoPath = $request->file('video')->store('videos/files', 'public');
-        $coverPath = $request->file('image_cover')->store('videos/covers', 'public');
+    $validated = $request->validate([
+        'title' => 'required|string|max:255',
+        'video' => 'required|file|mimes:mp4,mov,avi,mkv,webm|max:102400',
+        'video_category_id' => 'required|exists:video_categories,id',
+        'image_cover' => 'required|image|max:5120',
+        'description' => 'nullable|string|max:100',
+    ]);
 
-        // Extract duration in seconds using getID3
-        $fullVideoPath = storage_path('app/public/' . $videoPath);
-        $getID3 = new getID3();
+    // Store original files.
+    $videoPath = $request->file('video')
+        ->store('videos/files', 'public');
+
+    $coverPath = $request->file('image_cover')
+        ->store('videos/covers', 'public');
+
+    try {
+        // Extract duration from the original video.
+        $fullVideoPath = Storage::disk('public')->path($videoPath);
+
+        $getID3 = new \getID3();
         $fileInfo = $getID3->analyze($fullVideoPath);
-        
-        $durationSeconds = isset($fileInfo['playtime_seconds']) ? (int) round($fileInfo['playtime_seconds']) : 0;
 
-        // Create the video record
+        $durationSeconds = isset($fileInfo['playtime_seconds'])
+            ? (int) round($fileInfo['playtime_seconds'])
+            : 0;
+
+        // Create the video record.
         $video = Video::create([
-            'user_id'           => $request->user()->id,
-            'video_category_id' => $request->video_category_id,
-            'title'             => $request->title,
-            'description'       => $request->description,
-            'video_path'        => $videoPath,
-            'image_cover'       => $coverPath,
-            'duration_seconds'  => $durationSeconds,
-            'is_active'         => true,
+            'user_id' => $user->id,
+            'video_category_id' => $validated['video_category_id'],
+            'title' => $validated['title'],
+            'description' => $validated['description'] ?? null,
+
+            // Initially points to the original.
+            'video_path' => $videoPath,
+
+            // Preserve the original separately.
+            'original_video_path' => $videoPath,
+
+            'image_cover' => $coverPath,
+            'thumbnail_path' => null,
+
+            'duration_seconds' => $durationSeconds,
+            'processing_status' => 'pending',
+            'processing_error' => null,
+
+            'is_active' => true,
         ]);
 
-        // notify admins
-    $users= User::whereIn('role',['admin','super_admin'])->get();
-    foreach($users as $admin)
-        {
-            $admin->notify(
-                new videoCreationNotification($user->name)
-            );
-        }
-        return response()->json([
-            'message' => 'Video uploaded successfully',
-            'video'   => $video,
-        ], 201);
+    } catch (Throwable $exception) {
+
+        // Database creation failed: clean up uploaded files.
+        Storage::disk('public')->delete([
+            $videoPath,
+            $coverPath,
+        ]);
+
+        throw $exception;
     }
+
+    // Dispatch processing after the record has been created.
+    ProcessVideo::dispatch($video->id);
+
+    // Notify administrators.
+    $admins = User::whereIn('role', [
+        'admin',
+        'super_admin',
+    ])->get();
+
+    foreach ($admins as $admin) {
+        $admin->notify(
+            new videoCreationNotification($user->name)
+        );
+    }
+
+    return response()->json([
+        'message' => 'Video uploaded successfully. Processing has started.',
+        'video' => $video->fresh(),
+    ], 201);
+}
 
     // Update video info
     public function update(Request $request, Video $video)
@@ -140,3 +180,8 @@ class VideoController extends Controller
         ]);
     }
 }
+
+
+
+
+
