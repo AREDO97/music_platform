@@ -1,0 +1,88 @@
+
+name: Neon Database Backup
+
+on:
+  # Automatically run every 5 minutes
+  schedule:
+    - cron: '*/5 * * * *'
+
+  # Allow us to trigger backups manually
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    name: Create PostgreSQL Backup
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Get the repository code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Create and verify the database backup
+      - name: Create database backup
+        env:
+          DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+        run: |
+          set -euo pipefail
+
+          # Ensure the secret exists
+          if [ -z "$DATABASE_URL" ]; then
+            echo "ERROR: NEON_DATABASE_URL secret is missing."
+            exit 1
+          fi
+
+          # Create a directory for the backup
+          mkdir -p backups
+
+          # Generate a unique timestamp
+          TIMESTAMP=$(date -u +"%Y%m%dT%H%M%SZ")
+
+          BACKUP_FILE="music-platform-${TIMESTAMP}.dump"
+
+          echo "Starting PostgreSQL backup..."
+
+          # Run PostgreSQL tools inside Docker
+          docker run --rm \
+            -e DATABASE_URL \
+            -e BACKUP_FILE="$BACKUP_FILE" \
+            -v "$PWD/backups:/backups" \
+            postgres:18-alpine \
+            sh -euc '
+              echo "Running pg_dump..."
+
+              pg_dump \
+                --no-owner \
+                --no-acl \
+                -Fc \
+                -v \
+                -d "$DATABASE_URL" \
+                -f "/backups/$BACKUP_FILE"
+
+              echo "Checking backup file..."
+
+              test -s "/backups/$BACKUP_FILE"
+
+              echo "Checking PostgreSQL archive..."
+
+              pg_restore --list "/backups/$BACKUP_FILE" > /dev/null
+
+              echo "Backup archive is readable."
+            '
+
+          echo "Backup completed successfully."
+
+          # Display file information
+          ls -lh "backups/$BACKUP_FILE"
+
+      # 3. Upload the backup to GitHub
+      - name: Upload backup artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: music-platform-backup-${{ github.run_id }}
+          path: backups/*.dump
+          if-no-files-found: error
+          retention-days: 1
